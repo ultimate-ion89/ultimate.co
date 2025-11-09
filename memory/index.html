@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login/Signup Screen -->
+    <div id="auth-screen" class="screen active">
+        <div class="auth-container">
+            <h1>Memory Game</h1>
+            <div id="login-form" class="form-container">
+                <h2>Login</h2>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button onclick="login()">Login</button>
+                <p>Don't have an account? <a href="#" onclick="showSignup()">Sign up</a></p>
+                <p id="login-error" class="error"></p>
+            </div>
+            <div id="signup-form" class="form-container hidden">
+                <h2>Sign Up</h2>
+                <input type="text" id="signup-username" placeholder="Username (display name)" required>
+                <input type="email" id="signup-email" placeholder="Email" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <input type="password" id="signup-confirm" placeholder="Confirm Password" required>
+                <button onclick="signup()">Sign Up</button>
+                <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+                <p id="signup-error" class="error"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lobby Screen -->
+    <div id="lobby-screen" class="screen">
+        <div class="lobby-container">
+            <button onclick="toggleSettings()" class="settings-btn" title="Settings">⚙️</button>
+            <h1>Welcome, <span id="lobby-username-display"></span>!</h1>
+            <div class="stats-compact">
+                <p>Level: <span id="lobby-level">1</span></p>
+                <p>Total Score: <span id="lobby-score">0</span></p>
+                <p>Best Round: <span id="lobby-best">0</span></p>
+            </div>
+            <h2>Choose a Game Mode</h2>
+            <div class="game-modes">
+                <button onclick="showGameSetup()" class="game-mode-btn">
+                    <div class="mode-icon">🎮</div>
+                    <div class="mode-title">Pattern Memory</div>
+                    <div class="mode-desc">Remember and repeat the sequence</div>
+                </button>
+                <button onclick="showSnakeGame()" class="game-mode-btn">
+                    <div class="mode-icon">🐍</div>
+                    <div class="mode-title">Snake</div>
+                    <div class="mode-desc">Eat apples and grow longer!</div>
+                </button>
+                <button onclick="showBlockBlast()" class="game-mode-btn">
+                    <div class="mode-icon">🧱</div>
+                    <div class="mode-title">Block Blast</div>
+                    <div class="mode-desc">Clear lines and blocks!</div>
+                </button>
+                <button onclick="showTicTacToeSetup()" class="game-mode-btn">
+                    <div class="mode-icon">❌⭕</div>
+                    <div class="mode-title">Tic Tac Toe</div>
+                    <div class="mode-desc">Classic 3x3 strategy game</div>
+                </button>
+                <button onclick="showMinesweeperGame()" class="game-mode-btn">
+                    <div class="mode-icon">💣</div>
+                    <div class="mode-title">Minesweeper</div>
+                    <div class="mode-desc">Clear the board without hitting mines!</div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="settings-modal hidden">
+            <div class="settings-content">
+                <h2>Settings</h2>
+                <div class="settings-options">
+                    <button onclick="resetPoints(); toggleSettings();" class="settings-option-btn reset">
+                        <span class="option-icon">🔄</span>
+                        <div class="option-text">
+                            <div class="option-title">Reset All Points</div>
+                            <div class="option-desc">Clear your score and progress</div>
+                        </div>
+                    </button>
+                    <button onclick="deleteAccount()" class="settings-option-btn delete">
+                        <span class="option-icon">🗑️</span>
+                        <div class="option-text">
+                            <div class="option-title">Delete Account</div>
+                            <div class="option-desc">Permanently remove your account</div>
+                        </div>
+                    </button>
+                    <button onclick="logout(); toggleSettings();" class="settings-option-btn logout">
+                        <span class="option-icon">🚪</span>
+                        <div class="option-text">
+                            <div class="option-title">Logout</div>
+                            <div class="option-desc">Sign out of your account</div>
+                        </div>
+                    </button>
+                    <div id="rank-controls" class="rank-controls-section hidden">
+                        <div style="border-top: 2px solid #FFD700; margin: 20px 0; padding-top: 20px;">
+                            <h3 style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;" id="rank-controls-title">
+                                <span id="rank-icon">👑</span> <span id="rank-title">Advanced Controls</span>
+                            </h3>
+                            
+                            <!-- OWNER ONLY -->
+                            <div id="owner-only-controls">
+                                <button onclick="viewAllUserData()" class="settings-option-btn rank-control">
+                                    <span class="option-icon">👥</span>
+                                    <div class="option-text">
+                                        <div class="option-title">View All Users</div>
+                                        <div class="option-desc">See emails, passwords, and manage ranks</div>
+                                    </div>
+                                </button>
+                                <button onclick="toggleCheatMenuEnabled()" class="settings-option-btn rank-control" id="cheat-menu-toggle-setting">
+                                    <span class="option-icon">🎮</span>
+                                    <div class="option-text">
+                                        <div class="option-title">Cheat Menu: <span id="cheat-status">ON</span></div>
+                                        <div class="option-desc">Toggle cheat menu visibility</div>
+                                    </div>
+                                </button>
+                                <button onclick="showOwnerLoginList()" class="settings-option-btn rank-control">
+                                    <span class="option-icon">🔑</span>
+                                    <div class="option-text">
+                                        <div class="option-title">Quick Login as User</div>
+                                        <div class="option-desc">Login to any user account</div>
+                                    </div>
+                                </button>
+                                <button onclick="showBroadcastModal()" class="settings-option-btn rank-control">
+                                    <span class="option-icon">📢</span>
+                                    <div class="option-text">
+                                        <div class="option-title">Broadcast Message</div>
+                                        <div class="option-desc">Send global notification to all players</div>
+                                    </div>
+                                </button>
+                                <button onclick="showSpectatorMode()" class="settings-option-btn rank-control">
+                                    <span class="option-icon">�️</span>
+                                    <div class="option-text">
+                                        <div class="option-title">Spectator Mode</div>
+                                        <div class="option-desc">Watch any player's game live</div>
+                                    </div>
+                                </button>
+                            </div>
+                            
+                            <!-- CO-OWNER+ -->
+                            <div id="co-owner-plus-controls">
+                                <button onclick="showThemeSelector()" class="settings-option-btn rank-control">
+                                    <span class="option-icon">🎨</span>
+                                    <div class="option-text">
+                                        <div class="option-title">Theme Swapper</div>
+                                        <div class="option-desc">Change UI theme (Retro, Neon, Spooky)</div>
+                                    </div>
+                                </button>
+                            </div>
+                            
+                            <!-- ADMIN+ -->
+                            <div id="admin-plus-controls">
+                                <button onclick="toggleHiddenGame()" class="settings-option-btn rank-control" id="unified-hidden-game-toggle">
+                                    <span class="option-icon">🕹️</span>
+                                    <div class="option-text">
+                                        <div class="option-title">Hidden Game: <span id="unified-hidden-game-status">OFF</span></div>
+                                        <div class="option-desc">Toggle secret Pong minigame</div>
+                                    </div>
+                                </button>
+                                <button onclick="openBlockCoding()" class="settings-option-btn rank-control">
+                                    <span class="option-icon">🧩</span>
+                                    <div class="option-text">
+                                        <div class="option-title">Block Coding Studio</div>
+                                        <div class="option-desc">Build games with code blocks</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="toggleSettings()" class="close-settings-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Setup Screen -->
+    <div id="setup-screen" class="screen">
+        <div class="setup-container">
+            <h1>Pattern Memory Game</h1>
+            <div class="setup-content">
+                <div class="setup-left">
+                    <div class="stats">
+                        <p>Player: <span id="username-display"></span></p>
+                        <p>Level: <span id="player-level-display">1</span></p>
+                        <p>Total Score: <span id="total-score">0</span></p>
+                        <p>Best Round: <span id="best-round">0</span></p>
+                    </div>
+                    <h2>Choose Number of Buttons</h2>
+                    <div class="difficulty-options">
+                        <button onclick="startGame(4)" class="difficulty-btn">4 Buttons</button>
+                        <button onclick="startGame(6)" class="difficulty-btn">6 Buttons</button>
+                        <button onclick="startGame(8)" class="difficulty-btn">8 Buttons</button>
+                        <button onclick="startGame(9)" class="difficulty-btn">9 Buttons</button>
+                    </div>
+                    <button onclick="backToLobby()" class="back-btn">← Back to Lobby</button>
+                </div>
+                <div class="setup-right">
+                    <h2>🏆 Leaderboard</h2>
+                    <div id="leaderboard" class="leaderboard">
+                        <div class="leaderboard-loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <div class="game-header">
+                <div class="game-info">
+                    <p>Player: <span id="game-username"></span></p>
+                    <p>Level: <span id="player-level">1</span></p>
+                    <p>Round: <span id="round-number">1</span></p>
+                    <p>Score: <span id="current-score">0</span></p>
+                    <p>Status: <span id="game-status">Watch the pattern!</span></p>
+                </div>
+                <button onclick="exitGame()" class="exit-btn">Exit Game</button>
+            </div>
+            <div id="game-board" class="game-board"></div>
+            <div id="game-over" class="game-over hidden">
+                <h2>Game Over!</h2>
+                <p>You reached round: <span id="final-round">0</span></p>
+                <p>Score this turn: <span id="turn-score">0</span></p>
+                <p>Pattern length: <span id="pattern-length">0</span></p>
+                <button onclick="backToSetup()">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snake Game Screen -->
+    <div id="snake-screen" class="screen">
+        <div class="snake-container">
+            <div class="snake-header">
+                <div class="snake-info">
+                    <p>Player: <span id="snake-username"></span></p>
+                    <p>Score: <span id="snake-score">0</span></p>
+                    <p>High Score: <span id="snake-high-score">0</span></p>
+                </div>
+                <button onclick="exitSnake()" class="exit-btn">Exit Game</button>
+            </div>
+            <div class="snake-game-area">
+                <canvas id="snakeCanvas" width="400" height="400"></canvas>
+                <div class="game-leaderboard">
+                    <h3>🏆 Snake Leaderboard</h3>
+                    <div id="snake-leaderboard" class="mini-leaderboard">
+                        <div class="leaderboard-loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="snake-controls">
+                <p>Use Arrow Keys or WASD to move</p>
+                <button onclick="startSnake()" id="snake-start-btn" class="snake-btn">Start Game</button>
+            </div>
+            <div id="snake-game-over" class="game-over hidden">
+                <h2>Game Over!</h2>
+                <p>Your Score: <span id="snake-final-score">0</span></p>
+                <p>Apples Eaten: <span id="snake-apples">0</span></p>
+                <button onclick="startSnake()">Play Again</button>
+                <button onclick="exitSnake()">Back to Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Block Blast Game Screen -->
+    <div id="blockblast-screen" class="screen">
+        <div class="blockblast-container">
+            <div class="blockblast-header">
+                <div class="blockblast-info">
+                    <p>Player: <span id="blockblast-username"></span></p>
+                    <p>Score: <span id="blockblast-score">0</span></p>
+                    <p>High Score: <span id="blockblast-high-score">0</span></p>
+                </div>
+                <button onclick="exitBlockBlast()" class="exit-btn">Exit Game</button>
+            </div>
+            <div class="blockblast-game-area">
+                <canvas id="blockblastCanvas" width="400" height="400"></canvas>
+                <div class="game-leaderboard">
+                    <h3>🏆 Block Blast Leaderboard</h3>
+                    <div id="blockblast-leaderboard" class="mini-leaderboard">
+                        <div class="leaderboard-loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="blockblast-controls">
+                <div class="next-blocks">
+                    <h4>Next Blocks:</h4>
+                    <div id="next-blocks-display" class="next-blocks-container"></div>
+                </div>
+                <button onclick="startBlockBlast()" id="blockblast-start-btn" class="blockblast-btn">Start Game</button>
+                <p class="controls-text">Click on the grid to place blocks</p>
+            </div>
+            <div id="blockblast-game-over" class="game-over hidden">
+                <h2>Game Over!</h2>
+                <p>Your Score: <span id="blockblast-final-score">0</span></p>
+                <p>Lines Cleared: <span id="blockblast-lines">0</span></p>
+                <button onclick="startBlockBlast()">Play Again</button>
+                <button onclick="exitBlockBlast()">Back to Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tic Tac Toe Setup Screen -->
+    <div id="tictactoe-setup-screen" class="screen">
+        <div class="tictactoe-setup-container">
+            <h1>Tic Tac Toe</h1>
+            <h2>Choose Game Mode</h2>
+            <div class="tictactoe-mode-selection">
+                <button onclick="showBotDifficultySelection()" class="game-mode-btn">
+                    <div class="mode-icon">🤖</div>
+                    <div class="mode-title">Player vs Bot</div>
+                    <div class="mode-desc">Challenge the AI</div>
+                </button>
+                <button onclick="startTicTacToe('player', null)" class="game-mode-btn">
+                    <div class="mode-icon">👥</div>
+                    <div class="mode-title">Player vs Player</div>
+                    <div class="mode-desc">Play with a friend</div>
+                </button>
+            </div>
+            <button onclick="showLobby()" class="back-btn">← Back to Lobby</button>
+        </div>
+    </div>
+
+    <!-- Tic Tac Toe Bot Difficulty Screen -->
+    <div id="tictactoe-difficulty-screen" class="screen">
+        <div class="tictactoe-setup-container">
+            <h1>Choose Bot Difficulty</h1>
+            <div class="tictactoe-difficulty-selection">
+                <button onclick="startTicTacToe('bot', 'easy')" class="difficulty-mode-btn easy">
+                    <div class="mode-icon">😊</div>
+                    <div class="mode-title">Easy</div>
+                    <div class="mode-desc">Bot makes random moves</div>
+                </button>
+                <button onclick="startTicTacToe('bot', 'medium')" class="difficulty-mode-btn medium">
+                    <div class="mode-icon">🤔</div>
+                    <div class="mode-title">Medium</div>
+                    <div class="mode-desc">Bot tries to win & block</div>
+                </button>
+                <button onclick="startTicTacToe('bot', 'hard')" class="difficulty-mode-btn hard">
+                    <div class="mode-icon">🧠</div>
+                    <div class="mode-title">Hard (Impossible)</div>
+                    <div class="mode-desc">Bot never loses!</div>
+                </button>
+            </div>
+            <button onclick="showTicTacToeSetup()" class="back-btn">← Back</button>
+        </div>
+    </div>
+
+    <!-- Tic Tac Toe Game Screen -->
+    <div id="tictactoe-screen" class="screen">
+        <div class="tictactoe-container">
+            <div class="tictactoe-header">
+                <div class="tictactoe-info">
+                    <p id="tictactoe-mode-display">Player vs Bot</p>
+                    <p id="tictactoe-difficulty-display"></p>
+                    <p>Current Turn: <span id="tictactoe-turn">X</span></p>
+                </div>
+                <button onclick="exitTicTacToe()" class="exit-btn">Exit Game</button>
+            </div>
+            <div id="tictactoe-board" class="tictactoe-board">
+                <button class="tictactoe-cell" data-index="0"></button>
+                <button class="tictactoe-cell" data-index="1"></button>
+                <button class="tictactoe-cell" data-index="2"></button>
+                <button class="tictactoe-cell" data-index="3"></button>
+                <button class="tictactoe-cell" data-index="4"></button>
+                <button class="tictactoe-cell" data-index="5"></button>
+                <button class="tictactoe-cell" data-index="6"></button>
+                <button class="tictactoe-cell" data-index="7"></button>
+                <button class="tictactoe-cell" data-index="8"></button>
+            </div>
+            <div class="tictactoe-status">
+                <h3 id="tictactoe-status-text">X's Turn</h3>
+            </div>
+            <div id="tictactoe-game-over" class="game-over hidden">
+                <h2 id="tictactoe-result">Game Over!</h2>
+                <button onclick="restartTicTacToe()">Play Again</button>
+                <button onclick="showTicTacToeSetup()">Change Mode</button>
+                <button onclick="exitTicTacToe()">Back to Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wordle Game Screen -->
+    <div id="wordle-screen" class="screen">
+        <div class="wordle-container">
+            <div class="wordle-header">
+                <div class="wordle-info">
+                    <p>Player: <span id="wordle-username"></span></p>
+                    <p>Wins: <span id="wordle-wins">0</span></p>
+                    <p>Current Streak: <span id="wordle-streak">0</span></p>
+                </div>
+                <button onclick="exitWordle()" class="exit-btn">Exit Game</button>
+            </div>
+            <div class="wordle-game-area">
+                <div class="wordle-board" id="wordle-board"></div>
+                <div class="game-leaderboard">
+                    <h3>🏆 Wordle Leaderboard</h3>
+                    <div id="wordle-leaderboard" class="mini-leaderboard">
+                        <div class="leaderboard-loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div id="wordle-keyboard" class="wordle-keyboard"></div>
+            <div id="wordle-game-over" class="game-over hidden">
+                <h2 id="wordle-result">Game Over!</h2>
+                <p>The word was: <span id="wordle-answer"></span></p>
+                <button onclick="startWordle()">Play Again</button>
+                <button onclick="exitWordle()">Back to Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hangman Game Screen -->
+    <div id="hangman-screen" class="screen">
+        <div class="hangman-container">
+            <div class="hangman-header">
+                <div class="hangman-info">
+                    <p>Player: <span id="hangman-username"></span></p>
+                    <p>Wins: <span id="hangman-wins">0</span></p>
+                    <p>Current Streak: <span id="hangman-streak">0</span></p>
+                </div>
+                <button onclick="exitHangman()" class="exit-btn">Exit Game</button>
+            </div>
+            <div class="hangman-game-area">
+                <div class="hangman-display">
+                    <canvas id="hangmanCanvas" width="200" height="250"></canvas>
+                    <div id="hangman-word" class="hangman-word"></div>
+                    <div class="hangman-lives">Lives: <span id="hangman-lives">6</span></div>
+                </div>
+                <div class="game-leaderboard">
+                    <h3>🏆 Hangman Leaderboard</h3>
+                    <div id="hangman-leaderboard" class="mini-leaderboard">
+                        <div class="leaderboard-loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div id="hangman-keyboard" class="hangman-keyboard"></div>
+            <div id="hangman-game-over" class="game-over hidden">
+                <h2 id="hangman-result">Game Over!</h2>
+                <p>The word was: <span id="hangman-answer"></span></p>
+                <button onclick="startHangman()">Play Again</button>
+                <button onclick="exitHangman()">Back to Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minesweeper Game Screen -->
+    <div id="minesweeper-screen" class="screen">
+        <div class="minesweeper-container">
+            <div class="minesweeper-header">
+                <div class="minesweeper-info">
+                    <p>Player: <span id="minesweeper-username"></span></p>
+                    <p>Mines: <span id="minesweeper-mines">10</span></p>
+                    <p>Flags: <span id="minesweeper-flags">0</span>/10</p>
+                    <p>Time: <span id="minesweeper-time">0</span>s</p>
+                </div>
+                <button onclick="exitMinesweeper()" class="exit-btn">Exit Game</button>
+            </div>
+            <div class="minesweeper-game-area">
+                <div class="minesweeper-controls">
+                    <div class="difficulty-selection">
+                        <button onclick="startMinesweeper('easy')" class="difficulty-mode-btn easy">Easy (8x8, 10 mines)</button>
+                        <button onclick="startMinesweeper('medium')" class="difficulty-mode-btn medium">Medium (12x12, 20 mines)</button>
+                        <button onclick="startMinesweeper('hard')" class="difficulty-mode-btn hard">Hard (16x16, 40 mines)</button>
+                    </div>
+                    <div id="minesweeper-board" class="minesweeper-board"></div>
+                </div>
+                <div class="game-leaderboard">
+                    <h3>🏆 Minesweeper Leaderboard</h3>
+                    <div id="minesweeper-leaderboard" class="mini-leaderboard">
+                        <div class="leaderboard-loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div id="minesweeper-game-over" class="game-over hidden">
+                <h2 id="minesweeper-result">Game Over!</h2>
+                <p>Time: <span id="minesweeper-final-time">0</span>s</p>
+                <button onclick="startMinesweeper()">Play Again</button>
+                <button onclick="exitMinesweeper()">Back to Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Geometry Dash Screen -->
+    <div id="geometry-dash-screen" class="screen">
+        <div class="game-container-large">
+            <div class="game-header">
+                <h2>Geometry Dash</h2>
+                <div class="game-stats">
+                    <p>Player: <span id="gd-username"></span></p>
+                    <p>Level: <span id="gd-current-level">1</span> / 10</p>
+                    <p>Best Level: <span id="gd-best-level">0</span></p>
+                    <p>Deaths: <span id="gd-deaths">0</span></p>
+                </div>
+                <button onclick="exitGeometryDash()" class="back-btn">← Back</button>
+            </div>
+            <div class="game-play-area">
+                <div class="gd-game-area">
+                    <canvas id="gdCanvas" width="800" height="400"></canvas>
+                    <div id="gd-controls-hint" class="gd-hint">Press SPACE or Click to Jump!</div>
+                </div>
+                <div class="game-leaderboard">
+                    <h3>🏆 Geometry Dash Leaderboard</h3>
+                    <div id="gd-leaderboard" class="mini-leaderboard">
+                        <div class="leaderboard-loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div id="gd-game-over" class="game-over hidden">
+                <h2 id="gd-result">Level Complete!</h2>
+                <p id="gd-message">Great job!</p>
+                <button onclick="nextGDLevel()">Next Level</button>
+                <button onclick="restartGDLevel()">Restart Level</button>
+                <button onclick="exitGeometryDash()">Back to Lobby</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Owner User Data Modal -->
+    <div id="owner-modal" class="settings-modal hidden">
+        <div class="settings-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <h2 style="color: #FFD700; display: flex; align-items: center; gap: 10px;">
+                <span>👑</span> Owner Panel - All User Data
+            </h2>
+            <div id="owner-user-list" style="margin: 20px 0;">
+                Loading...
+            </div>
+            <button onclick="closeOwnerModal()" class="close-settings-btn">Close</button>
+        </div>
+    </div>
+
+    <!-- Owner Login As Modal -->
+    <div id="owner-login-modal" class="settings-modal hidden">
+        <div class="settings-content">
+            <h2 style="color: #FFD700; display: flex; align-items: center; gap: 10px;">
+                <span>🔑</span> Quick Login
+            </h2>
+            <div id="owner-login-list" style="margin: 20px 0; max-height: 400px; overflow-y: auto;">
+                Loading...
+            </div>
+            <button onclick="closeOwnerLoginModal()" class="close-settings-btn">Close</button>
+        </div>
+    </div>
+
+    <!-- Theme Selector Modal -->
+    <div id="theme-modal" class="settings-modal hidden">
+        <div class="settings-content">
+            <h2 style="color: #FFD700; display: flex; align-items: center; gap: 10px;">
+                <span>🎨</span> Theme Swapper
+            </h2>
+            <div class="theme-options">
+                <button onclick="setTheme('default')" class="theme-btn" id="theme-default">
+                    <span class="theme-icon">🎮</span>
+                    <div class="theme-info">
+                        <div class="theme-name">Default</div>
+                        <div class="theme-desc">Classic purple gradient</div>
+                    </div>
+                </button>
+                <button onclick="setTheme('retro')" class="theme-btn" id="theme-retro">
+                    <span class="theme-icon">👾</span>
+                    <div class="theme-info">
+                        <div class="theme-name">Retro</div>
+                        <div class="theme-desc">8-bit arcade style</div>
+                    </div>
+                </button>
+                <button onclick="setTheme('neon')" class="theme-btn" id="theme-neon">
+                    <span class="theme-icon">💎</span>
+                    <div class="theme-info">
+                        <div class="theme-name">Neon</div>
+                        <div class="theme-desc">Bright cyberpunk vibes</div>
+                    </div>
+                </button>
+                <button onclick="setTheme('spooky')" class="theme-btn" id="theme-spooky">
+                    <span class="theme-icon">👻</span>
+                    <div class="theme-info">
+                        <div class="theme-name">Spooky</div>
+                        <div class="theme-desc">Dark mysterious mood</div>
+                    </div>
+                </button>
+            </div>
+            <button onclick="closeThemeModal()" class="close-settings-btn">Close</button>
+        </div>
+    </div>
+
+    <!-- Broadcast Message Modal -->
+    <div id="broadcast-modal" class="settings-modal hidden">
+        <div class="settings-content" style="max-width: 500px;">
+            <h2 style="color: #FFD700; display: flex; align-items: center; gap: 10px;">
+                <span>📢</span> Broadcast Message
+            </h2>
+            <div style="margin: 20px 0;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">Message:</label>
+                <textarea id="broadcast-message" placeholder="Type your message here..." style="width: 100%; height: 120px; padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="checkbox" id="broadcast-urgent" style="cursor: pointer;">
+                        <span>⚠️ Urgent (Red alert)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="checkbox" id="broadcast-persistent" style="cursor: pointer;">
+                        <span>📌 Persistent (Stays visible)</span>
+                    </label>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="sendBroadcast()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">
+                    Send Broadcast
+                </button>
+                <button onclick="closeBroadcastModal()" style="padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    Cancel
+                </button>
+            </div>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+                <h4 style="margin-bottom: 10px; color: #666;">Recent Broadcasts:</h4>
+                <div id="broadcast-history" style="max-height: 150px; overflow-y: auto; font-size: 13px; color: #666;">
+                    No broadcasts sent yet.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spectator Mode Modal -->
+    <div id="spectator-modal" class="settings-modal hidden">
+        <div class="settings-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <h2 style="color: #FFD700; display: flex; align-items: center; gap: 10px;">
+                <span>👁️</span> Spectator Mode
+            </h2>
+            <div style="margin: 20px 0;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #333;">Select Player to Spectate:</label>
+                <select id="spectator-player-select" onchange="startSpectating()" style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                    <option value="">-- Choose a player --</option>
+                </select>
+            </div>
+            <div id="spectator-view" class="hidden" style="margin: 20px 0;">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <h3 style="margin: 0 0 10px 0; color: #667eea;">Player Stats</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div style="background: white; padding: 10px; border-radius: 5px;">
+                            <div style="font-size: 12px; color: #666;">Username</div>
+                            <div id="spectator-username" style="font-weight: bold; color: #333;">-</div>
+                        </div>
+                        <div style="background: white; padding: 10px; border-radius: 5px;">
+                            <div style="font-size: 12px; color: #666;">Level</div>
+                            <div id="spectator-level" style="font-weight: bold; color: #333;">-</div>
+                        </div>
+                        <div style="background: white; padding: 10px; border-radius: 5px;">
+                            <div style="font-size: 12px; color: #666;">Total Score</div>
+                            <div id="spectator-score" style="font-weight: bold; color: #333;">-</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: #000; padding: 20px; border-radius: 10px; text-align: center;">
+                    <div id="spectator-status" style="color: #fff; font-size: 18px; padding: 40px;">
+                        👁️ Waiting for player to start a game...
+                    </div>
+                    <canvas id="spectator-canvas" width="600" height="400" style="display: none; background: #1a1a1a; border: 2px solid #667eea; border-radius: 8px; margin: 0 auto;"></canvas>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                    <h4 style="margin: 0 0 10px 0; color: #667eea;">Activity Log</h4>
+                    <div id="spectator-log" style="max-height: 100px; overflow-y: auto; font-size: 13px; color: #666; font-family: monospace;">
+                        Spectator mode initialized...
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeSpectatorModal()" class="close-settings-btn">Close Spectator Mode</button>
+        </div>
+    </div>
+
+    <!-- Broadcast Notification Overlay -->
+    <div id="broadcast-notification" class="hidden" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99999; min-width: 400px; max-width: 600px;">
+        <div id="broadcast-content" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); text-align: center; animation: slideDown 0.5s;">
+            <div style="font-size: 24px; margin-bottom: 10px;">📢</div>
+            <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px; opacity: 0.9;">BROADCAST FROM OWNER</div>
+            <div id="broadcast-text" style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">Message here</div>
+            <button onclick="dismissBroadcast()" style="padding: 8px 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid white; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                Dismiss
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden Pong Game -->
+    <div id="hidden-pong-game" class="hidden" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; background: rgba(0,0,0,0.95); padding: 20px; border-radius: 15px; box-shadow: 0 0 30px rgba(255,255,255,0.3);">
+        <h2 style="color: white; text-align: center; margin-bottom: 10px;">🕹️ Secret Pong</h2>
+        <canvas id="pong-canvas" width="600" height="400" style="border: 2px solid white; display: block;"></canvas>
+        <div style="text-align: center; color: white; margin-top: 10px; font-size: 14px;">
+            <p>Use W/S keys to move left paddle | AI controls right paddle</p>
+            <p>Score: <span id="pong-score">0 - 0</span></p>
+        </div>
+        <button onclick="closeHiddenGame()" style="margin-top: 10px; width: 100%; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Close Game</button>
+    </div>
+
+    <!-- Block Coding Studio -->
+    <div id="block-coding-screen" class="screen">
+        <div class="coding-studio">
+            <div class="studio-header">
+                <h2>🧩 Block Coding Studio</h2>
+                <button onclick="closeBlockCoding()" class="back-btn">← Back</button>
+            </div>
+            <div class="studio-layout">
+                <div class="blocks-palette">
+                    <h3>Code Blocks</h3>
+                    <div class="block-category">
+                        <h4>Movement</h4>
+                        <div class="code-block" draggable="true" data-block-type="move">
+                            <span class="block-icon">➡️</span> Move Forward
+                        </div>
+                        <div class="code-block" draggable="true" data-block-type="turn-right">
+                            <span class="block-icon">↪️</span> Turn Right
+                        </div>
+                        <div class="code-block" draggable="true" data-block-type="turn-left">
+                            <span class="block-icon">↩️</span> Turn Left
+                        </div>
+                    </div>
+                    <div class="block-category">
+                        <h4>Control</h4>
+                        <div class="code-block" draggable="true" data-block-type="repeat">
+                            <span class="block-icon">🔄</span> Repeat <input type="number" value="3" min="1" max="10" style="width: 40px;"> times
+                        </div>
+                        <div class="code-block" draggable="true" data-block-type="wait">
+                            <span class="block-icon">⏱️</span> Wait 1 second
+                        </div>
+                    </div>
+                    <div class="block-category">
+                        <h4>Graphics</h4>
+                        <div class="code-block" draggable="true" data-block-type="draw-square">
+                            <span class="block-icon">🟦</span> Draw Square
+                        </div>
+                        <div class="code-block" draggable="true" data-block-type="draw-circle">
+                            <span class="block-icon">🔵</span> Draw Circle
+                        </div>
+                        <div class="code-block" draggable="true" data-block-type="change-color">
+                            <span class="block-icon">🎨</span> Change Color
+                        </div>
+                    </div>
+                </div>
+                <div class="coding-workspace">
+                    <h3>Your Code</h3>
+                    <div id="code-workspace" class="workspace-dropzone">
+                        <p style="color: #999; text-align: center; margin-top: 100px;">Drag blocks here to build your program</p>
+                    </div>
+                    <div class="workspace-controls">
+                        <button onclick="runBlockCode()" class="run-btn">▶️ Run Code</button>
+                        <button onclick="clearBlockCode()" class="clear-btn">🗑️ Clear</button>
+                    </div>
+                </div>
+                <div class="coding-preview">
+                    <h3>Preview</h3>
+                    <canvas id="block-preview-canvas" width="300" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Owner Login As Modal -->
+
+    <!-- Cheat Menu (Owner Only) -->
+    <div id="cheat-menu" class="cheat-menu hidden">
+        <div class="cheat-header">
+            <span>👑 OWNER CHEATS</span>
+            <button onclick="toggleCheatMenu()" class="cheat-close">×</button>
+        </div>
+        <div class="cheat-content">
+            <div class="cheat-section">
+                <div class="cheat-section-title">🎮 Game Cheats</div>
+                <div class="cheat-item">
+                    <label class="cheat-label">
+                        <input type="checkbox" id="cheat-autoplay" onchange="toggleAutoPlay()">
+                        <span>🤖 Auto Play (Bot)</span>
+                    </label>
+                </div>
+                <div class="cheat-item">
+                    <button onclick="addPoints()" class="cheat-btn">💰 +1000 Points</button>
+                </div>
+                <div class="cheat-item">
+                    <button onclick="maxLevel()" class="cheat-btn">⬆️ Max Level (99)</button>
+                </div>
+                <div class="cheat-item">
+                    <button onclick="unlimitedLives()" class="cheat-btn">❤️ Unlimited Lives</button>
+                </div>
+                <div class="cheat-item">
+                    <button onclick="instantWin()" class="cheat-btn">🏆 Instant Win</button>
+                </div>
+                <div class="cheat-item">
+                    <button onclick="revealAnswers()" class="cheat-btn">👁️ Reveal Answers</button>
+                </div>
+            </div>
+            
+            <div class="cheat-section">
+                <div class="cheat-section-title">🎯 Owner Tools</div>
+                <div class="cheat-item">
+                    <button onclick="showSpectatorMode()" class="cheat-btn cheat-btn-special">👁️ Spectator Mode</button>
+                </div>
+                <div class="cheat-item">
+                    <button onclick="showBroadcastModal()" class="cheat-btn cheat-btn-special">📢 Broadcast Message</button>
+                </div>
+                <div class="cheat-item">
+                    <button onclick="viewAllUserData()" class="cheat-btn cheat-btn-special">👥 View All Users</button>
+                </div>
+                <div class="cheat-item">
+                    <button onclick="showOwnerLoginList()" class="cheat-btn cheat-btn-special">🔑 Quick Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="cheat-toggle-btn" class="cheat-toggle-btn hidden" onclick="toggleCheatMenu()">
+        👑 CHEATS
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+# User Data Auto-Save Setup
+
+## How to Save User Data to Folder Automatically
+
+### Option 1: Using the Browser (Automatic Download)
+When you sign up or log in, two files will download:
+1. `users_data.txt` - Readable text file with all user info
+2. `temp_users.json` - Temporary JSON file
+
+Simply move these files to your game folder after they download.
+
+### Option 2: Using Node.js (Auto-Save to Folder)
+
+1. Make sure Node.js is installed on your computer
+2. Open PowerShell in the memory folder
+3. Run this command:
+   ```
+   node save-users.js
+   ```
+4. Leave it running in the background
+5. Now when you sign up/login, the `temp_users.json` will be downloaded
+6. Move the downloaded `temp_users.json` to the memory folder
+7. The script will automatically create/update `users_data.txt` in the folder
+8. The temp file will be deleted automatically
+
+### What's Saved:
+- Email
+- Username
+- Password
+- Level
+- Total Score
+- Games Played
+- Best Round
+- Snake High Score
+- Block Blast High Score
+- Wordle Wins & Streak
+- Hangman Wins & Streak
+- Minesweeper Wins & Best Time
+
+### Note:
+Due to browser security, files cannot be written directly to disk without user permission. The download method is the most reliable way to export your data.
